@@ -545,7 +545,7 @@ jobs:
       - name: Print CF CLI Versions
         run: |
           cf -v
-          cf${VERSION_MAJOR} -v
+          Invoke-Expression "cf$env:VERSION_MAJOR -v"
   
       - name: Test Version Match
         run: |
