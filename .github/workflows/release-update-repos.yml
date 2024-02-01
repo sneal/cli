@@ -499,6 +499,21 @@ jobs:
           Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
           choco setapikey -k $env:CHOCO_API_KEY -s https://push.chocolatey.org/
 
+      - name: Calculate Checksums
+        run: |
+          foreach ($bit in @('32', '64')) {
+            $file="cf-cli_win${bit}.zip"
+            Invoke-WebRequest "${env:CLAW_URL}/stable?release=windows${bit}-exe&version=${env:VERSION_BUILD}&source=github-rel" `
+              -OutFile $file
+            
+            if (-not (Test-Path -Path $file)) {
+              Write-Error "Failed to download $file" -ErrorAction Stop
+            }
+          
+            $hash = (Get-FileHash $file).Hash
+            Add-Content -Path "$env:GITHUB_ENV" -Value "CLI_WIN${bit}_SHA256=$hash"
+          }
+
       - name: Render Chocolatey Templates
         run: |
           # Ensure current directory is accurate for WriteAllLines
@@ -512,6 +527,8 @@ jobs:
           New-Item -Path ./tools -ItemType Directory -Force | Out-Null
           (Get-Content -Encoding utf8 -Raw ./cli/.github/win/choco/chocolateyinstall.ps1.tmpl).
             Replace('${version}', $env:VERSION_BUILD). `
+            Replace('${checksum}', $env:CLI_WIN32_SHA256). `
+            Replace('${checksum64}', $env:CLI_WIN64_SHA256). `
             Replace('${claw_url}', $env:CLAW_URL) | `
             Set-Content ./tools/chocolateyinstall.ps1 -Encoding utf8
 
