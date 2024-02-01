@@ -4,8 +4,8 @@ $ErrorActionPreference = 'Stop';
 $packageName = 'cloudfoundry-cli'
 $registryUninstallerKeyName = 'cloudfoundry-cli'
 $version = "${version}"
-$url = "${claw_url}/stable?release=windows32-exe&version=$($version)&source=github-rel"
-$url64 = "${claw_url}/stable?release=windows64-exe&version=$($version)&source=github-rel"
+$url = "${claw_url}/stable?release=windows32-exe&version=${version}&source=github-rel"
+$url64 = "${claw_url}/stable?release=windows64-exe&version=${version}&source=github-rel"
 $installDir = "$(Split-Path -parent $MyInvocation.MyCommand.Definition)"
 $validExitCodes = @(0)
 
